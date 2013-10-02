@@ -7,7 +7,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     readSettings();
     BeginDialog dialog;
+    dialog.hostNameWrite(hostName);
     dialog.exec();
+    hostName  =dialog.hosNameRead();
 
     if (createDBConnection())
         QMessageBox::warning(this, "", trUtf8("Yes соединения с БД"));
@@ -16,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent)
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setCentralWidget(mdiArea);
+
+//    setWindowTitle(hostName);
 //    connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
 //            this, SLOT(updateMenus()));
 }
@@ -44,11 +48,13 @@ void MainWindow::readSettings(){
     settings.beginGroup("/Settings");
     QSize size = settings.value("/size",sizeHint()).toSize();
     resize(size);
+    hostName = settings.value("/Settings/hostName","").toString();
     settings.endGroup();
 }
 
 void MainWindow::writeSettings(){
     settings.beginGroup("/Settings");
     settings.setValue("/size",size());
+    settings.setValue("/Settings/hostName",hostName);
     settings.endGroup();
 }

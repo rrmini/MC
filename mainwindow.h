@@ -25,6 +25,7 @@ private:
 
     QMdiArea *mdiArea;
     QSettings settings;
+    QString hostName;
 
 };
 
