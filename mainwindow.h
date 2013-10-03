@@ -14,18 +14,25 @@ class MainWindow : public QMainWindow
     
 public:
     MainWindow(QWidget *parent = 0);
+    bool createDBConnection();
     ~MainWindow();
 
 private:
 
-    bool createDBConnection();
+    void createActions();
 
+    void createMenus();
     void readSettings();
     void writeSettings();
 
+    QAction     *exitAct;
+    QMenu   *fileMenu;
     QMdiArea *mdiArea;
     QSettings settings;
+    QString bdName;
     QString hostName;
+    QString user;
+    QString passw;
 
 };
 

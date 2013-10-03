@@ -19,6 +19,8 @@ int main(int argc, char *argv[])
          a.installTranslator(&myappTranslator);
 // ---------------------------------------------------------------------------------
     MainWindow w;
+    if (!w.createDBConnection()) return 0;
+
     w.show();
     
     return a.exec();
