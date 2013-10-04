@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 QT += sql
-QT       += core gui
+QT       += core gui widgets
 
 TARGET = MC
 TEMPLATE = app

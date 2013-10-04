@@ -1,6 +1,9 @@
-#include <QtGui>
 #include "begindialog.h"
 
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QVBoxLayout>
 
 BeginDialog::BeginDialog(QWidget *parent) :
     QDialog(parent)

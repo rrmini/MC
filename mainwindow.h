@@ -7,11 +7,10 @@
 
 class QMdiArea;
 
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    
+
 public:
     MainWindow(QWidget *parent = 0);
     bool createDBConnection();
@@ -26,13 +25,13 @@ private:
     void writeSettings();
 
     QAction     *exitAct;
-    QMenu   *fileMenu;
-    QMdiArea *mdiArea;
-    QSettings settings;
-    QString bdName;
-    QString hostName;
-    QString user;
-    QString passw;
+    QMenu       *fileMenu;
+    QMdiArea    *mdiArea;
+    QSettings   settings;
+    QString     bdName;
+    QString     hostName;
+    QString     user;
+    QString     passw;
 
 };
 

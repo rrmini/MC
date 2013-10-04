@@ -1,4 +1,4 @@
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])
@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 //Этот кусок кода позволяет в дальнейшем использовать tr() и нормально отображать
 // кирилицу
     QTextCodec *russianCodec = QTextCodec::codecForName("UTF-8");
-    QTextCodec::setCodecForTr(russianCodec);
+    QTextCodec::setCodecForLocale(russianCodec);
 
     QTranslator qtTranslator;
          qtTranslator.load("qt_" + QLocale::system().name(),""

@@ -1,6 +1,10 @@
-#include <QtGui>
 #include "mainwindow.h"
 #include "formdialogs/begindialog.h"
+
+#include <QMenu>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QMdiArea>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), settings("OCS","MC")
@@ -16,12 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
     bdName = dialog.bdNameRead();
     user = dialog.nameRead();
     passw = dialog.getPasswd();
-
-//    if (!createDBConnection()){
-//        QMessageBox::warning(this, "", tr("Нет соединения с БД"));
-//        close();
-//        return;
-//    }
 
     mdiArea = new QMdiArea;
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);

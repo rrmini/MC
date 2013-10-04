@@ -2,12 +2,9 @@
 #define BEGINDIALOG_H
 
 #include <QDialog>
-#include <QLineEdit>
 
-QT_BEGIN_NAMESPACE
-class QDialogButtonBox;
-class QLineEdit;
-QT_END_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QDialogButtonBox)
+QT_FORWARD_DECLARE_CLASS(QLineEdit)
 
 class BeginDialog : public QDialog
 {
@@ -31,11 +28,11 @@ private slots:
 private:
     void createForm();
 
-    QDialogButtonBox *buttonBox;
-    QLineEdit *bdNameEdit;
-    QLineEdit *hostNameEdit;
-    QLineEdit *nameEdit;
-    QLineEdit *passwEdit;
+    QDialogButtonBox    *buttonBox;
+    QLineEdit           *bdNameEdit;
+    QLineEdit           *hostNameEdit;
+    QLineEdit           *nameEdit;
+    QLineEdit           *passwEdit;
 };
 
 #endif // BEGINDIALOG_H
