@@ -1,16 +1,13 @@
 #include "mainwindow.h"
 #include "formdialogs/begindialog.h"
+#include "formdialogs/databaseconnectiondialog.h"
 
-#include <QMenu>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QMdiArea>
+#include <QtWidgets>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), settings("OCS","MC")
+MainWindow::MainWindow()
 {
     readSettings();
-    BeginDialog dialog;
+  /*  BeginDialog dialog;
     dialog.hostNameWrite(hostName);
     dialog.bdNameWrite(bdName);
     dialog.nameWrite(user);
@@ -19,14 +16,14 @@ MainWindow::MainWindow(QWidget *parent)
     hostName  =dialog.hosNameRead();
     bdName = dialog.bdNameRead();
     user = dialog.nameRead();
-    passw = dialog.getPasswd();
+    passw = dialog.getPasswd();*/
 
     mdiArea = new QMdiArea;
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setCentralWidget(mdiArea);
 
-//    setWindowTitle(hostName);
+    setWindowTitle(hostName);
 //    connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
 //            this, SLOT(updateMenus()));
 
@@ -39,12 +36,33 @@ MainWindow::~MainWindow()
     writeSettings();
 }
 
+void MainWindow::dbConnection(){
+    DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(this);
+    dialog->exec();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    mdiArea->closeAllSubWindows();
+    if (mdiArea->currentSubWindow()) {
+        event->ignore();
+    } else {
+        writeSettings();
+        event->accept();
+    }
+}
+
 void MainWindow::createActions(){
-    exitAct = new QAction(trUtf8("Выход"), this);
-    exitAct->setIcon(QIcon(":/images/door_out.png"));
-    exitAct->setShortcuts(QKeySequence::Quit);
-    exitAct->setStatusTip(trUtf8("Выход из программы"));
+    dbConnectionAct = new QAction(tr("Соединение"),this);
+    connect(dbConnectionAct, SIGNAL(triggered()), this, SLOT(dbConnection()));
+
+    exitAct = new QAction(tr("Выход"), this);
+//    exitAct->setIcon(QIcon(":/images/door_out.png"));
+    exitAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
+    exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
+
+
 }
 
 bool MainWindow::createDBConnection()
@@ -75,26 +93,25 @@ bool MainWindow::createDBConnection()
 }
 
 void MainWindow::createMenus(){
-    fileMenu = menuBar()->addMenu(trUtf8("Файл"));
+    fileMenu = menuBar()->addMenu(tr("Основное"));
+    fileMenu->addAction(dbConnectionAct);
     fileMenu->addAction(exitAct);
 }
 
 void MainWindow::readSettings(){
-    settings.beginGroup("/Settings");
+    QSettings settings("QtProject", "MC");
     QSize size = settings.value("/size",sizeHint()).toSize();
     resize(size);
     hostName = settings.value("/Settings/hostName","").toString();
     bdName = settings.value("/Settings/bdName","").toString();
     user = settings.value("/Settings/name","").toString();
     if (user == tr("")) user = tr("*****") ;
-    settings.endGroup();
 }
 
 void MainWindow::writeSettings(){
-    settings.beginGroup("/Settings");
+    QSettings settings("QtProject", "MC");
     settings.setValue("/size",size());
     settings.setValue("/Settings/hostName",hostName);
     settings.setValue("/Settings/bdName",bdName);
     settings.setValue("/Settings/name",user);
-    settings.endGroup();
 }

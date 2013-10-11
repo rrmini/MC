@@ -2,19 +2,31 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QSettings>
 #include <QtSql>
 
 class QMdiArea;
+QT_BEGIN_NAMESPACE
+class QAction;
+class QMenu;
+class QMdiArea;
+//class QMdiSubWindow;
+//class QSignalMapper;
+QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow();
     bool createDBConnection();
     ~MainWindow();
+
+protected:
+    void closeEvent(QCloseEvent *event);
+
+private slots:
+    void dbConnection();
 
 private:
 
@@ -24,10 +36,10 @@ private:
     void readSettings();
     void writeSettings();
 
+    QAction     *dbConnectionAct;
     QAction     *exitAct;
     QMenu       *fileMenu;
     QMdiArea    *mdiArea;
-    QSettings   settings;
     QString     bdName;
     QString     hostName;
     QString     user;
