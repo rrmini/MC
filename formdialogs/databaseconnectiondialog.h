@@ -38,8 +38,13 @@ private:
     QLineEdit* editDatabasePassword;
     QComboBox* comboDatabaseDriverName;
     QDialogButtonBox* buttons;
+    QGroupBox* gridGroupBox;
+    QGroupBox* urlGroupBox;
 
     void setUpGUI();
+    void createGridGroupBox();
+    void createUrlGroupBox();
+    void createWidgets();
     void findAvailableDrivers();
     void doDatabaseConnection();
 
@@ -53,7 +58,10 @@ public:
     void setDatabaseUsername( const QString& username );
     void setDatabaseDriverName( const QString& drvName );
     void setDatabasePassword( const QString& pwd );
-
+    int portNumber();
+    const QString dbName();
+    const QString hostName();
+    const QString userName();
 
     /*!
       * Performs a check against the user data and enables/disables

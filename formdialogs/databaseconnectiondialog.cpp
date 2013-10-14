@@ -6,11 +6,15 @@ DatabaseConnectionDialog::DatabaseConnectionDialog(QWidget *parent) :
     // this dialog is modal
        setModal( true );
        // the title of this dialog
-       setWindowTitle( tr("Database connection") );
+
        // place each GUI component
+       createWidgets();
+       createGridGroupBox();
+       createUrlGroupBox();
        setUpGUI();
        // load available drivers
        findAvailableDrivers();
+       setWindowTitle( tr("Database connection") );
 }
 
 DatabaseConnectionDialog::~DatabaseConnectionDialog()
@@ -18,11 +22,33 @@ DatabaseConnectionDialog::~DatabaseConnectionDialog()
 
 }
 
-void DatabaseConnectionDialog::setUpGUI()
-{
+void DatabaseConnectionDialog::createGridGroupBox(){
+    // create a grid layout to add all the components
+    gridGroupBox = new QGroupBox( tr("Database connection properties" ) );
+    QGridLayout* formGridLayout = new QGridLayout( this );
+    formGridLayout->addWidget( labelDatabaseDriverName, 0, 0 );
+    formGridLayout->addWidget( comboDatabaseDriverName, 0, 1 );
+    labelDatabaseDriverName->setBuddy( comboDatabaseDriverName );
+    formGridLayout->addWidget( labelDatabaseHostName, 1, 0 );
+    formGridLayout->addWidget( editDatabaseHostName, 1, 1);
+    labelDatabaseHostName->setBuddy( editDatabaseHostName );
+    formGridLayout->addWidget( labelDatabasePort, 2, 0 );
+    formGridLayout->addWidget( spinBoxDatabasePort, 2, 1 );
+    labelDatabasePort->setBuddy( spinBoxDatabasePort );
+    formGridLayout->addWidget( labelDatabaseName, 3, 0 );
+    formGridLayout->addWidget( editDatabaseName , 3, 1 );
+    labelDatabaseName->setBuddy( editDatabaseName );
+    formGridLayout->addWidget( labelDatabaseUsername, 4, 0 );
+    formGridLayout->addWidget( editDatabaseUsername, 4, 1 );
+    labelDatabaseUsername->setBuddy( editDatabaseUsername );
+    formGridLayout->addWidget( labelDatabasePassword, 5, 0 );
+    formGridLayout->addWidget( editDatabasePassword, 5, 1 );
+    labelDatabasePassword->setBuddy( editDatabasePassword );
+    // add all the elements to groupbox
+    gridGroupBox->setLayout( formGridLayout );
+}
 
-
-    // create all gui components
+void DatabaseConnectionDialog::createWidgets(){
     labelDatabaseDriverName = new QLabel( tr("Database Type (driver name)"), this );
     labelDatabasePort       = new QLabel( tr("TCP/IP Port Number"), this );
     labelDatabaseName       = new QLabel( tr("Database Name"), this );
@@ -83,48 +109,20 @@ void DatabaseConnectionDialog::setUpGUI()
              SIGNAL(rejected()),
              this,
              SLOT(close()));
+}
 
-
-
-
-
-    // create a vertical layout to display components
-    QVBoxLayout* verticalLayout = new QVBoxLayout( this );
-
-
-    // create a grid layout to add all the components
-    QGridLayout* formGridLayout = new QGridLayout( this );
-    QGroupBox* gridGroupBox = new QGroupBox( this );
-    gridGroupBox->setTitle( tr("Database connection properties" ) );
-    formGridLayout->addWidget( labelDatabaseDriverName, 0, 0 );
-    formGridLayout->addWidget( comboDatabaseDriverName, 0, 1 );
-    labelDatabaseDriverName->setBuddy( comboDatabaseDriverName );
-    formGridLayout->addWidget( labelDatabaseHostName, 1, 0 );
-    formGridLayout->addWidget( editDatabaseHostName, 1, 1);
-    labelDatabaseHostName->setBuddy( editDatabaseHostName );
-    formGridLayout->addWidget( labelDatabasePort, 2, 0 );
-    formGridLayout->addWidget( spinBoxDatabasePort, 2, 1 );
-    labelDatabasePort->setBuddy( spinBoxDatabasePort );
-    formGridLayout->addWidget( labelDatabaseName, 3, 0 );
-    formGridLayout->addWidget( editDatabaseName , 3, 1 );
-    labelDatabaseName->setBuddy( editDatabaseName );
-    formGridLayout->addWidget( labelDatabaseUsername, 4, 0 );
-    formGridLayout->addWidget( editDatabaseUsername, 4, 1 );
-    labelDatabaseUsername->setBuddy( editDatabaseUsername );
-    formGridLayout->addWidget( labelDatabasePassword, 5, 0 );
-    formGridLayout->addWidget( editDatabasePassword, 5, 1 );
-    labelDatabasePassword->setBuddy( editDatabasePassword );
-    // add all the elements to groupbox
-    gridGroupBox->setLayout( formGridLayout );
-
+void DatabaseConnectionDialog::createUrlGroupBox(){
     // place a new groupbox to contain the database connection URL
-    QGroupBox* urlGroupBox = new QGroupBox( this );
-    urlGroupBox->setTitle( tr( "Database URL" ) );
+    urlGroupBox = new QGroupBox( tr( "Database URL" ) );
     QHBoxLayout* urlLayout = new QHBoxLayout( this );
     urlLayout->addWidget( labelDatabaseURL );
     urlGroupBox->setLayout( urlLayout );
+}
 
-
+void DatabaseConnectionDialog::setUpGUI()
+{
+    // create a vertical layout to display components
+    QVBoxLayout* verticalLayout = new QVBoxLayout( this );
 
     // nest all layouts together
     verticalLayout->addWidget( gridGroupBox );
@@ -150,7 +148,6 @@ bool DatabaseConnectionDialog::slotCheckFormData()
 {
     return checkFormData();
 }
-
 
 bool DatabaseConnectionDialog::checkFormData(){
     if( editDatabaseName->text().isEmpty()
@@ -265,6 +262,22 @@ void DatabaseConnectionDialog::setDatabaseDriverName(const QString &drvName)
 void DatabaseConnectionDialog::setDatabasePassword(const QString &pwd)
 {
     editDatabasePassword->setText( pwd );
+}
+
+int DatabaseConnectionDialog::portNumber(){
+    return spinBoxDatabasePort->value();
+}
+
+const QString DatabaseConnectionDialog::dbName(){
+    return editDatabaseName->text();
+}
+
+const QString DatabaseConnectionDialog::hostName(){
+    return editDatabaseHostName->text();
+}
+
+const QString DatabaseConnectionDialog::userName(){
+    return editDatabaseUsername->text();
 }
 
 void DatabaseConnectionDialog::run(bool autoConnect)

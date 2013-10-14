@@ -38,7 +38,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::dbConnection(){
     DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(this);
+    dialog->setDatabaseHostName(hostName);
+    dialog->setDatabaseName(bdName);
+    dialog->setDatabasePortNumber(portNumber);
+    dialog->setDatabaseUsername(user);
     dialog->exec();
+    bdName = dialog->dbName();
+    portNumber = dialog->portNumber();
+    hostName = dialog->hostName();
+    user = dialog->userName();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -54,6 +62,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::createActions(){
     dbConnectionAct = new QAction(tr("Соединение"),this);
+    dbConnectionAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
     connect(dbConnectionAct, SIGNAL(triggered()), this, SLOT(dbConnection()));
 
     exitAct = new QAction(tr("Выход"), this);
@@ -104,6 +113,7 @@ void MainWindow::readSettings(){
     resize(size);
     hostName = settings.value("/Settings/hostName","").toString();
     bdName = settings.value("/Settings/bdName","").toString();
+    portNumber = settings.value("/Settings/portNumber",3306).toInt();
     user = settings.value("/Settings/name","").toString();
     if (user == tr("")) user = tr("*****") ;
 }
@@ -113,5 +123,6 @@ void MainWindow::writeSettings(){
     settings.setValue("/size",size());
     settings.setValue("/Settings/hostName",hostName);
     settings.setValue("/Settings/bdName",bdName);
+    settings.setValue("/Settings/portNumber",portNumber);
     settings.setValue("/Settings/name",user);
 }

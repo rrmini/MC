@@ -40,6 +40,7 @@ private:
     QAction     *exitAct;
     QMenu       *fileMenu;
     QMdiArea    *mdiArea;
+    int         portNumber;
     QString     bdName;
     QString     hostName;
     QString     user;
