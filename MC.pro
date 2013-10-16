@@ -13,12 +13,12 @@ TEMPLATE = app
 SOURCES +=  main.cpp\
             mainwindow.cpp \
             formdialogs/begindialog.cpp \
-    formdialogs/databaseconnectiondialog.cpp
+            formdialogs/databaseconnectiondialog.cpp
 
 HEADERS  += mainwindow.h \
             formdialogs/begindialog.h \
             formdialogs/databaseconnectiondialog.h
 
-#FORMS +=
+TRANSLATIONS = translations/mainwindow_ru.ts
 
-FORMS +=
+RESOURCES += mc.qrc

@@ -2,6 +2,7 @@
 #include "formdialogs/begindialog.h"
 #include "formdialogs/databaseconnectiondialog.h"
 
+//#include <QTranslator>
 #include <QtWidgets>
 
 MainWindow::MainWindow()
@@ -61,17 +62,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
 }
 
 void MainWindow::createActions(){
-    dbConnectionAct = new QAction(tr("Соединение"),this);
+    dbConnectionAct = new QAction(tr("Connection"),this);
     dbConnectionAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
     connect(dbConnectionAct, SIGNAL(triggered()), this, SLOT(dbConnection()));
 
-    exitAct = new QAction(tr("Выход"), this);
+    exitAct = new QAction(tr("Exit"), this);
 //    exitAct->setIcon(QIcon(":/images/door_out.png"));
     exitAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
-
+    languageRuAct = new QAction(tr("RUS"),this);
+    connect(languageRuAct, SIGNAL(triggered()), SLOT(switchLanguageRu()));
 }
 
 bool MainWindow::createDBConnection()
@@ -79,17 +81,17 @@ bool MainWindow::createDBConnection()
     QSqlDatabase db;
         db = QSqlDatabase::addDatabase("QMYSQL");
         if (hostName == tr("")){
-            QMessageBox::warning(this, "", trUtf8("Не указан адрес БД"));
+            QMessageBox::warning(this, "", trUtf8("No address database"));
             return false;
         }
         db.setHostName(hostName);
         if (bdName == tr("")){
-            QMessageBox::warning(this, "", tr("Не указано имя базы данных"));
+            QMessageBox::warning(this, "", tr("Not Specified database name"));
             return false;
         }
         db.setDatabaseName(bdName);//mc
         if (user == tr("")){
-            QMessageBox::warning(this, "", tr("Не указано имя пользователя"));
+            QMessageBox::warning(this, "", tr("Not a user name"));
             return false;
         }
         db.setUserName(user);
@@ -102,9 +104,12 @@ bool MainWindow::createDBConnection()
 }
 
 void MainWindow::createMenus(){
-    fileMenu = menuBar()->addMenu(tr("Основное"));
+    fileMenu = menuBar()->addMenu(tr("Main"));
     fileMenu->addAction(dbConnectionAct);
     fileMenu->addAction(exitAct);
+
+    languageMenu = menuBar()->addMenu(tr("Language"));
+    languageMenu->addAction(languageRuAct);
 }
 
 void MainWindow::readSettings(){
@@ -116,6 +121,13 @@ void MainWindow::readSettings(){
     portNumber = settings.value("/Settings/portNumber",3306).toInt();
     user = settings.value("/Settings/name","").toString();
     if (user == tr("")) user = tr("*****") ;
+}
+
+void MainWindow::switchLanguageRu(){
+    QTranslator translator;
+    if(translator.load("/translations/mainwindow_ru.qm"))
+        QMessageBox::warning(this,"",tr("Ok"));
+    qApp->installTranslator(&translator);
 }
 
 void MainWindow::writeSettings(){
