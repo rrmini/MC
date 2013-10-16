@@ -4,6 +4,7 @@
 
 //#include <QTranslator>
 #include <QtWidgets>
+#include <QDir>
 
 MainWindow::MainWindow()
 {
@@ -27,9 +28,12 @@ MainWindow::MainWindow()
     setWindowTitle(hostName);
 //    connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
 //            this, SLOT(updateMenus()));
+    qApp->installTranslator(&appTranslator);
+    qApp->installTranslator(&qtTranslator);
 
     createActions();
     createMenus();
+    retranslate();
 }
 
 MainWindow::~MainWindow()
@@ -62,18 +66,21 @@ void MainWindow::closeEvent(QCloseEvent *event)
 }
 
 void MainWindow::createActions(){
-    dbConnectionAct = new QAction(tr("Connection"),this);
+    dbConnectionAct = new QAction(this);
     dbConnectionAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
     connect(dbConnectionAct, SIGNAL(triggered()), this, SLOT(dbConnection()));
 
-    exitAct = new QAction(tr("Exit"), this);
+    exitAct = new QAction( this);
 //    exitAct->setIcon(QIcon(":/images/door_out.png"));
     exitAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
-    languageRuAct = new QAction(tr("RUS"),this);
-    connect(languageRuAct, SIGNAL(triggered()), SLOT(switchLanguageRu()));
+    aboutQtAct = new QAction(this);
+    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+
+//    languageRuAct = new QAction(tr("RUS"),this);
+//    connect(languageRuAct, SIGNAL(triggered()), SLOT(switchLanguageRu()));
 }
 
 bool MainWindow::createDBConnection()
@@ -103,13 +110,67 @@ bool MainWindow::createDBConnection()
         return true;
 }
 
+void MainWindow::createLanguageMenu(){
+    languageMenu = new QMenu(this);
+
+    languageActionGroup = new QActionGroup(this);
+    connect(languageActionGroup, SIGNAL(triggered(QAction*)), this, SLOT(switchLanguage(QAction*)));
+
+    QDir qmDir = directoryOf("translations");
+    QStringList fileNames = qmDir.entryList(QStringList("mainwindos_*.qm"));
+    for(int i = 0; i < fileNames.size(); ++i){
+        QString locale = fileNames[i];
+        locale.remove(0, locale.indexOf('_') + 1);
+        locale.chop(3);
+
+        QTranslator translator;
+        translator.load(fileNames[i], qmDir.absolutePath());
+        QString language = translator.translate("MainWindow", "English");
+
+        QAction *action = new QAction(tr("&%1 %2").arg(i + 1).arg(language), this);
+        action->setCheckable(true);
+        action->setData(locale);
+
+        languageMenu->addAction(action);
+        languageActionGroup->addAction(action);
+
+        if (language == "English") action->setChecked(true);
+    }
+}
+
 void MainWindow::createMenus(){
-    fileMenu = menuBar()->addMenu(tr("Main"));
+    fileMenu = new QMenu(this);
     fileMenu->addAction(dbConnectionAct);
     fileMenu->addAction(exitAct);
 
-    languageMenu = menuBar()->addMenu(tr("Language"));
-    languageMenu->addAction(languageRuAct);
+    createLanguageMenu();
+
+    helpMenu = new QMenu(this);
+    helpMenu->addAction(aboutQtAct);
+//    languageMenu = menuBar()->addMenu(tr("Language"));
+//    languageMenu->addAction(languageRuAct);
+
+    menuBar()->addMenu(fileMenu);
+    menuBar()->addMenu(languageMenu);
+    menuBar()->addMenu(helpMenu);
+}
+
+QDir MainWindow::directoryOf(const QString &subdir){
+    QDir dir(QApplication::applicationDirPath());
+
+#if defined(Q_OS_WIN)
+    if (dir.dirName.toLower() == "debug"
+            || dirName().toLower() == "release")
+        dir.cdUp();
+#elif defined(Q_OS_MAC)
+    if (dir.dirName() == "MacOS") {
+        dir.cdUp();
+        dir.cdUp();
+        dir.cdUp();
+    }
+#endif
+    dir.cd(subdir);
+    return dir;
 }
 
 void MainWindow::readSettings(){
@@ -123,11 +184,23 @@ void MainWindow::readSettings(){
     if (user == tr("")) user = tr("*****") ;
 }
 
-void MainWindow::switchLanguageRu(){
-    QTranslator translator;
-    if(translator.load("/translations/mainwindow_ru.qm"))
-        QMessageBox::warning(this,"",tr("Ok"));
-    qApp->installTranslator(&translator);
+void MainWindow::retranslate(){
+    dbConnectionAct ->setText(tr("Connection"));
+    exitAct         ->setText(tr("Exit"));
+    aboutQtAct      ->setText(tr("About &Qt"));
+
+
+    fileMenu        ->setTitle(tr("Main"));
+    languageMenu    ->setTitle(tr("&Language"));
+    helpMenu        ->setTitle(tr("&Help"));
+}
+
+void MainWindow::switchLanguage(QAction *action){
+    QString locale = action->data().toString();
+    QString qmPath = directoryOf("translations").absolutePath();
+    appTranslator.load("mainwindow_"+ locale, qmPath);
+    qtTranslator.load("qt_" + locale, qmPath);
+    retranslate();
 }
 
 void MainWindow::writeSettings(){

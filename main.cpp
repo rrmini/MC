@@ -14,9 +14,9 @@ int main(int argc, char *argv[])
 //                 QLibraryInfo::location(QLibraryInfo::TranslationsPath));
 //         a.installTranslator(&qtTranslator);
 
-//         QTranslator myappTranslator;
-//         myappTranslator.load("myapp_" + QLocale::system().name());
-//         a.installTranslator(&myappTranslator);
+//         QTranslator appTranslator;
+//         appTranslator.load("myapp_" + QLocale::system().name()/*, qmPath*/);
+//         a.installTranslator(&appTranslator);
 // ---------------------------------------------------------------------------------
     MainWindow w;
    // if (!w.createDBConnection()) return 0;

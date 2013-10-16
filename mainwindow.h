@@ -7,6 +7,7 @@
 class QMdiArea;
 QT_BEGIN_NAMESPACE
 class QAction;
+class QActionGroup;
 class QMenu;
 class QMdiArea;
 //class QMdiSubWindow;
@@ -27,19 +28,26 @@ protected:
 
 private slots:
     void dbConnection();
-    void switchLanguageRu();
+    void switchLanguage(QAction *action);
 
 private:
 
+    QDir directoryOf(const QString &subdir);
     void createActions();
 
+    void createLanguageMenu();
     void createMenus();
     void readSettings();
+    void retranslate();
     void writeSettings();
 
+    QAction     *aboutQtAct;
     QAction     *dbConnectionAct;
     QAction     *exitAct;
-    QAction     *languageRuAct;
+//    QAction     *languageRuAct;
+
+    QActionGroup *languageActionGroup;
+    QMenu       *helpMenu;
     QMenu       *fileMenu;
     QMenu       *languageMenu;
     QMdiArea    *mdiArea;
@@ -49,6 +57,8 @@ private:
     QString     user;
     QString     passw;
 
+    QTranslator appTranslator;
+    QTranslator qtTranslator;
 };
 
 #endif // MAINWINDOW_H
