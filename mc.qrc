@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>translations/mainwindow_ru.qm</file>
         <file>translations/main_ru.qm</file>
+        <file>translations/qt_help_ru.qm</file>
+        <file>translations/qt_ru.qm</file>
     </qresource>
 </RCC>

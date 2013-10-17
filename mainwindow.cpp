@@ -28,6 +28,7 @@ MainWindow::MainWindow()
     setWindowTitle(hostName);
 //    connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
 //            this, SLOT(updateMenus()));
+//    appTranslator = QTranslator();
     qApp->installTranslator(&appTranslator);
     qApp->installTranslator(&qtTranslator);
 
@@ -117,7 +118,13 @@ void MainWindow::createLanguageMenu(){
     connect(languageActionGroup, SIGNAL(triggered(QAction*)), this, SLOT(switchLanguage(QAction*)));
 
     QDir qmDir = directoryOf("translations");
-    QStringList fileNames = qmDir.entryList(QStringList("mainwindos_*.qm"));
+    QStringList fileNames = qmDir.entryList(QStringList("mainwindow_*.qm"));
+//    QMessageBox::warning(0,"",tr("%1").arg(qmDir.absolutePath()));
+/*
+Внимательно смотрим каталог сборки приложения и туда не забудем поместить нашу папочку
+"translations" с файлами переводов *.qm
+*/
+
     for(int i = 0; i < fileNames.size(); ++i){
         QString locale = fileNames[i];
         locale.remove(0, locale.indexOf('_') + 1);
@@ -198,8 +205,9 @@ void MainWindow::retranslate(){
 void MainWindow::switchLanguage(QAction *action){
     QString locale = action->data().toString();
     QString qmPath = directoryOf("translations").absolutePath();
+//    QMessageBox::warning(0,"",tr("%1").arg(qmPath));
     appTranslator.load("mainwindow_"+ locale, qmPath);
-    qtTranslator.load("qt_" + locale, qmPath);
+    qtTranslator.load("qt_help_" + locale, qmPath);
     retranslate();
 }
 

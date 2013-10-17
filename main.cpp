@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 //Этот кусок кода позволяет в дальнейшем использовать tr() и нормально отображать
 // кирилицу
 //    QTextCodec *russianCodec = QTextCodec::codecForName("UTF-8");
@@ -23,26 +23,5 @@ int main(int argc, char *argv[])
 
     w.show();
     
-    return a.exec();
-}
-
-/*
-int main(int argc, char *argv[])
-{
-    QApplication app(argc, argv);
-
-    QTranslator qtTranslator;
-    qtTranslator.load("qt_" + QLocale::system().name(),
-            QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    app.installTranslator(&qtTranslator);
-
-    QTranslator myappTranslator;
-    myappTranslator.load("myapp_" + QLocale::system().name());
-    app.installTranslator(&myappTranslator);
-
-    ...
     return app.exec();
 }
-
-
-*/

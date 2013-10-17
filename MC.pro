@@ -19,6 +19,7 @@ HEADERS  += mainwindow.h \
             formdialogs/begindialog.h \
             formdialogs/databaseconnectiondialog.h
 
-TRANSLATIONS = translations/mainwindow_ru.ts
+TRANSLATIONS = translations/mainwindow_ru.ts \
+                translations/mainwindow_ru.qm
 
 RESOURCES += mc.qrc
