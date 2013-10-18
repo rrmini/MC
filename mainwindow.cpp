@@ -1,24 +1,12 @@
 #include "mainwindow.h"
-#include "formdialogs/begindialog.h"
 #include "formdialogs/databaseconnectiondialog.h"
 
-//#include <QTranslator>
 #include <QtWidgets>
 #include <QDir>
 
 MainWindow::MainWindow()
 {
     readSettings();
-  /*  BeginDialog dialog;
-    dialog.hostNameWrite(hostName);
-    dialog.bdNameWrite(bdName);
-    dialog.nameWrite(user);
-
-    dialog.exec();
-    hostName  =dialog.hosNameRead();
-    bdName = dialog.bdNameRead();
-    user = dialog.nameRead();
-    passw = dialog.getPasswd();*/
 
     mdiArea = new QMdiArea;
     mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -28,7 +16,6 @@ MainWindow::MainWindow()
     setWindowTitle(hostName);
 //    connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
 //            this, SLOT(updateMenus()));
-//    appTranslator = QTranslator();
     qApp->installTranslator(&appTranslator);
     qApp->installTranslator(&qtTranslator);
 
@@ -80,35 +67,6 @@ void MainWindow::createActions(){
     aboutQtAct = new QAction(this);
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
-//    languageRuAct = new QAction(tr("RUS"),this);
-//    connect(languageRuAct, SIGNAL(triggered()), SLOT(switchLanguageRu()));
-}
-
-bool MainWindow::createDBConnection()
-{
-    QSqlDatabase db;
-        db = QSqlDatabase::addDatabase("QMYSQL");
-        if (hostName == tr("")){
-            QMessageBox::warning(this, "", trUtf8("No address database"));
-            return false;
-        }
-        db.setHostName(hostName);
-        if (bdName == tr("")){
-            QMessageBox::warning(this, "", tr("Not Specified database name"));
-            return false;
-        }
-        db.setDatabaseName(bdName);//mc
-        if (user == tr("")){
-            QMessageBox::warning(this, "", tr("Not a user name"));
-            return false;
-        }
-        db.setUserName(user);
-        db.setPassword(passw);//паровоз
-        if(!db.open()){
-            QMessageBox::warning(0, "",db.lastError().text());
-            return false;
-        }
-        return true;
 }
 
 void MainWindow::createLanguageMenu(){
@@ -122,7 +80,7 @@ void MainWindow::createLanguageMenu(){
 //    QMessageBox::warning(0,"",tr("%1").arg(qmDir.absolutePath()));
 /*
 Внимательно смотрим каталог сборки приложения и туда не забудем поместить нашу папочку
-"translations" с файлами переводов *.qm
+"translations" с файлами переводов *.qm в том числе и файлы из <QTDIR>/translations/
 */
 
     for(int i = 0; i < fileNames.size(); ++i){
@@ -154,8 +112,6 @@ void MainWindow::createMenus(){
 
     helpMenu = new QMenu(this);
     helpMenu->addAction(aboutQtAct);
-//    languageMenu = menuBar()->addMenu(tr("Language"));
-//    languageMenu->addAction(languageRuAct);
 
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(languageMenu);
@@ -196,7 +152,6 @@ void MainWindow::retranslate(){
     exitAct         ->setText(tr("Exit"));
     aboutQtAct      ->setText(tr("About &Qt"));
 
-
     fileMenu        ->setTitle(tr("Main"));
     languageMenu    ->setTitle(tr("&Language"));
     helpMenu        ->setTitle(tr("&Help"));
@@ -207,7 +162,7 @@ void MainWindow::switchLanguage(QAction *action){
     QString qmPath = directoryOf("translations").absolutePath();
 //    QMessageBox::warning(0,"",tr("%1").arg(qmPath));
     appTranslator.load("mainwindow_"+ locale, qmPath);
-    qtTranslator.load("qt_help_" + locale, qmPath);
+    qtTranslator.load("qt_" + locale, qmPath);
     retranslate();
 }
 

@@ -20,7 +20,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
-    bool createDBConnection();
+
     ~MainWindow();
 
 protected:
@@ -44,7 +44,6 @@ private:
     QAction     *aboutQtAct;
     QAction     *dbConnectionAct;
     QAction     *exitAct;
-//    QAction     *languageRuAct;
 
     QActionGroup *languageActionGroup;
     QMenu       *helpMenu;
