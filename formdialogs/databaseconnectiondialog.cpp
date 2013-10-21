@@ -15,6 +15,7 @@ DatabaseConnectionDialog::DatabaseConnectionDialog(QWidget *parent) :
        // load available drivers
        findAvailableDrivers();
        setWindowTitle( tr("Database connection") );
+       isOpen = false;
 }
 
 DatabaseConnectionDialog::~DatabaseConnectionDialog()
@@ -215,6 +216,7 @@ void DatabaseConnectionDialog::doDatabaseConnection()
         editDatabaseHostName->setFocus();
     }
     else{
+        isOpen = true;
         // hide the dialog
         this->hide();
 

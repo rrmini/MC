@@ -30,12 +30,16 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::dbConnection(){
-    DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(this);
+    DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(this/*, &db*/);
     dialog->setDatabaseHostName(hostName);
     dialog->setDatabaseName(bdName);
     dialog->setDatabasePortNumber(portNumber);
     dialog->setDatabaseUsername(user);
     dialog->exec();
+    if(dialog->isOpen) {
+        dbConnectionAct->setIcon(QIcon(":/images/connect32.png"));
+        dbConnectionAct->setEnabled(false);
+    }
     bdName = dialog->dbName();
     portNumber = dialog->portNumber();
     hostName = dialog->hostName();
@@ -56,6 +60,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::createActions(){
     dbConnectionAct = new QAction(this);
     dbConnectionAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+    dbConnectionAct->setIcon(QIcon(":/images/disconnect32.png"));
     connect(dbConnectionAct, SIGNAL(triggered()), this, SLOT(dbConnection()));
 
     exitAct = new QAction( this);

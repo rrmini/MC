@@ -4,5 +4,8 @@
         <file>translations/main_ru.qm</file>
         <file>translations/qt_help_ru.qm</file>
         <file>translations/qt_ru.qm</file>
+        <file>images/disconnect32.png</file>
+        <file>images/disconnect16.png</file>
+        <file>images/connect32.png</file>
     </qresource>
 </RCC>
