@@ -15,7 +15,6 @@ DatabaseConnectionDialog::DatabaseConnectionDialog(QWidget *parent) :
        // load available drivers
        findAvailableDrivers();
        setWindowTitle( tr("Database connection") );
-       isOpen = false;
 }
 
 DatabaseConnectionDialog::~DatabaseConnectionDialog()
@@ -196,8 +195,18 @@ void DatabaseConnectionDialog::doDatabaseConnection()
 
     qDebug() << "Performing the database driver setup..";
 
+    QStringList names = QSqlDatabase::connectionNames();
+    for (int i=0; i<names.size(); i++){
+        if(names[i] == editDatabaseHostName->text() + " " + editDatabaseName->text()){
+            QMessageBox::warning(this,tr(""),tr("такое соединение уже есть!"));
+            return;
+        }
+    }
+
+
     // set database driver properties
-    QSqlDatabase databaseConnection = QSqlDatabase::addDatabase( comboDatabaseDriverName->currentText() );
+    QSqlDatabase databaseConnection = QSqlDatabase::addDatabase( comboDatabaseDriverName->currentText(),editDatabaseHostName->text() +
+                                                                 " " + editDatabaseName->text());
     databaseConnection.setDatabaseName( editDatabaseName->text() );
     databaseConnection.setUserName( editDatabaseUsername->text() );
     databaseConnection.setHostName( editDatabaseHostName->text() );

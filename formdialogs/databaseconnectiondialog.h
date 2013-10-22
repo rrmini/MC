@@ -52,7 +52,7 @@ public:
     explicit DatabaseConnectionDialog(QWidget *parent = 0);
     ~DatabaseConnectionDialog();
 
-    bool isOpen;
+    static bool isOpen;
     void setDatabaseName( const QString& dbName );
     void setDatabasePortNumber( int& portNumber );
     void setDatabaseHostName( const QString& hostname );

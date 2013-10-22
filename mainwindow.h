@@ -29,6 +29,7 @@ protected:
 private slots:
     void dbConnection();
     void switchLanguage(QAction *action);
+    void updateWindowMenu();
 
 private:
 
@@ -49,6 +50,7 @@ private:
     QMenu       *helpMenu;
     QMenu       *fileMenu;
     QMenu       *languageMenu;
+    QMenu       *windowMenu;
     QMdiArea    *mdiArea;
     int         portNumber;
     QString     bdName;

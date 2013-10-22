@@ -38,7 +38,7 @@ void MainWindow::dbConnection(){
     dialog->exec();
     if(dialog->isOpen) {
         dbConnectionAct->setIcon(QIcon(":/images/connect32.png"));
-        dbConnectionAct->setEnabled(false);
+//        dbConnectionAct->setEnabled(false);
     }
     bdName = dialog->dbName();
     portNumber = dialog->portNumber();
@@ -113,12 +113,18 @@ void MainWindow::createMenus(){
     fileMenu->addAction(dbConnectionAct);
     fileMenu->addAction(exitAct);
 
+    windowMenu = new QMenu(this);
+//    windowMenu = menuBar()->addMenu(tr("&Window"));
+    updateWindowMenu();
+    connect(windowMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowMenu()));
+
     createLanguageMenu();
 
     helpMenu = new QMenu(this);
     helpMenu->addAction(aboutQtAct);
 
     menuBar()->addMenu(fileMenu);
+    menuBar()->addMenu(windowMenu);
     menuBar()->addMenu(languageMenu);
     menuBar()->addMenu(helpMenu);
 }
@@ -158,6 +164,7 @@ void MainWindow::retranslate(){
     aboutQtAct      ->setText(tr("About &Qt"));
 
     fileMenu        ->setTitle(tr("Main"));
+    windowMenu      ->setTitle(tr("&Window"));
     languageMenu    ->setTitle(tr("&Language"));
     helpMenu        ->setTitle(tr("&Help"));
 }
@@ -169,6 +176,16 @@ void MainWindow::switchLanguage(QAction *action){
     appTranslator.load("mainwindow_"+ locale, qmPath);
     qtTranslator.load("qt_" + locale, qmPath);
     retranslate();
+}
+
+void MainWindow::updateWindowMenu(){
+    windowMenu->clear();
+    QStringList connections = QSqlDatabase::connectionNames();
+    for(int i=0; i<connections.size(); i++) {
+        QString names = connections[i];
+        QAction *act =new QAction(names, this);
+        windowMenu-> addAction(act);
+    }
 }
 
 void MainWindow::writeSettings(){

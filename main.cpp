@@ -1,5 +1,6 @@
 #include <QApplication>
 #include "mainwindow.h"
+#include "formdialogs/databaseconnectiondialog.h"
 
 int main(int argc, char *argv[])
 {
@@ -8,3 +9,4 @@ int main(int argc, char *argv[])
     w.show();
     return app.exec();
 }
+bool DatabaseConnectionDialog::isOpen;
