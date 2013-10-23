@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QLabel>
 #include <QMainWindow>
 #include <QtSql>
 
@@ -28,16 +29,20 @@ protected:
 
 private slots:
     void dbConnection();
+    void switchDataBase(QAction *action);
     void switchLanguage(QAction *action);
-    void updateWindowMenu();
+    void updateDatabaseMenu();
 
 private:
 
     QDir directoryOf(const QString &subdir);
     void createActions();
 
+
     void createLanguageMenu();
     void createMenus();
+    void createStatusBar();
+    void createToolBars();
     void readSettings();
     void retranslate();
     void writeSettings();
@@ -45,18 +50,23 @@ private:
     QAction     *aboutQtAct;
     QAction     *dbConnectionAct;
     QAction     *exitAct;
+    QAction     *separatorAct;
 
-    QActionGroup *languageActionGroup;
+    QActionGroup    *databaseActionGroup;
+    QActionGroup    *languageActionGroup;
+    QLabel      *statusLabel;
     QMenu       *helpMenu;
     QMenu       *fileMenu;
     QMenu       *languageMenu;
-    QMenu       *windowMenu;
     QMdiArea    *mdiArea;
     int         portNumber;
+    QStatusBar  *statBar;
     QString     bdName;
     QString     hostName;
     QString     user;
     QString     passw;
+
+    QToolBar    *mineToolBar;
 
     QTranslator appTranslator;
     QTranslator qtTranslator;

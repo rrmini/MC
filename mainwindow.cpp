@@ -21,6 +21,8 @@ MainWindow::MainWindow()
 
     createActions();
     createMenus();
+    createToolBars();
+    createStatusBar();
     retranslate();
 }
 
@@ -30,7 +32,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::dbConnection(){
-    DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(this/*, &db*/);
+    DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(this);
     dialog->setDatabaseHostName(hostName);
     dialog->setDatabaseName(bdName);
     dialog->setDatabasePortNumber(portNumber);
@@ -38,7 +40,7 @@ void MainWindow::dbConnection(){
     dialog->exec();
     if(dialog->isOpen) {
         dbConnectionAct->setIcon(QIcon(":/images/connect32.png"));
-//        dbConnectionAct->setEnabled(false);
+        updateDatabaseMenu();
     }
     bdName = dialog->dbName();
     portNumber = dialog->portNumber();
@@ -58,13 +60,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
 }
 
 void MainWindow::createActions(){
+    databaseActionGroup = new QActionGroup(this);
+    connect(databaseActionGroup, SIGNAL(triggered(QAction*)), this, SLOT(switchDataBase(QAction*)));
+
     dbConnectionAct = new QAction(this);
     dbConnectionAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
     dbConnectionAct->setIcon(QIcon(":/images/disconnect32.png"));
+    dbConnectionAct->setStatusTip(tr("database connection"));
     connect(dbConnectionAct, SIGNAL(triggered()), this, SLOT(dbConnection()));
 
     exitAct = new QAction( this);
-//    exitAct->setIcon(QIcon(":/images/door_out.png"));
+    exitAct->setIcon(QIcon(":/images/exit32.png"));
     exitAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
@@ -72,6 +78,35 @@ void MainWindow::createActions(){
     aboutQtAct = new QAction(this);
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
+    separatorAct = new QAction(this);
+    separatorAct->setSeparator(true);
+
+}
+
+void MainWindow::updateDatabaseMenu()
+{
+    fileMenu->clear();
+    fileMenu->addAction(dbConnectionAct);
+    fileMenu->addAction(exitAct);
+    fileMenu->addAction(separatorAct);
+
+    QStringList connections = QSqlDatabase::connectionNames();
+    separatorAct->setVisible(!connections.isEmpty());
+
+    for(int i=0; i<connections.size(); i++) {
+        QString names = connections[i];
+        QAction *act =new QAction(names, this);
+        act->setCheckable(true);
+        act->setData(names);
+        fileMenu-> addAction(act);
+        databaseActionGroup->addAction(act);
+        if(!i) {
+            act->setChecked(true);
+            switchDataBase(act);//не корректно работет т.к. не понятно на данном этапе какое соединение в данный момент
+            // используется. Скорее всего эта проблема решится, когда будут построены окна соответствующие открытм соединениям
+            // пока оставляем без изменения
+        }
+    }
 }
 
 void MainWindow::createLanguageMenu(){
@@ -113,20 +148,29 @@ void MainWindow::createMenus(){
     fileMenu->addAction(dbConnectionAct);
     fileMenu->addAction(exitAct);
 
-    windowMenu = new QMenu(this);
-//    windowMenu = menuBar()->addMenu(tr("&Window"));
-    updateWindowMenu();
-    connect(windowMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowMenu()));
-
     createLanguageMenu();
 
     helpMenu = new QMenu(this);
     helpMenu->addAction(aboutQtAct);
 
     menuBar()->addMenu(fileMenu);
-    menuBar()->addMenu(windowMenu);
     menuBar()->addMenu(languageMenu);
     menuBar()->addMenu(helpMenu);
+}
+
+void MainWindow::createStatusBar()
+{
+    statusLabel = new QLabel(tr("no connect"), this);
+    statBar = statusBar();
+//    statBar->clearMessage();
+    statBar->addWidget(statusLabel);
+}
+
+void MainWindow::createToolBars()
+{
+    mineToolBar = addToolBar(tr("Mine"));
+    mineToolBar->addAction(dbConnectionAct);
+    mineToolBar->addAction(exitAct);
 }
 
 QDir MainWindow::directoryOf(const QString &subdir){
@@ -164,9 +208,15 @@ void MainWindow::retranslate(){
     aboutQtAct      ->setText(tr("About &Qt"));
 
     fileMenu        ->setTitle(tr("Main"));
-    windowMenu      ->setTitle(tr("&Window"));
-    languageMenu    ->setTitle(tr("&Language"));
+    fileMenu        ->setStatusTip(tr("Main"));
+//    languageMenu    ->setTitle(tr("&Language"));
     helpMenu        ->setTitle(tr("&Help"));
+}
+
+void MainWindow::switchDataBase(QAction *action)
+{
+    QString name = action->data().toString();
+    statusLabel->setText(tr("current database: ") + name);
 }
 
 void MainWindow::switchLanguage(QAction *action){
@@ -176,16 +226,6 @@ void MainWindow::switchLanguage(QAction *action){
     appTranslator.load("mainwindow_"+ locale, qmPath);
     qtTranslator.load("qt_" + locale, qmPath);
     retranslate();
-}
-
-void MainWindow::updateWindowMenu(){
-    windowMenu->clear();
-    QStringList connections = QSqlDatabase::connectionNames();
-    for(int i=0; i<connections.size(); i++) {
-        QString names = connections[i];
-        QAction *act =new QAction(names, this);
-        windowMenu-> addAction(act);
-    }
 }
 
 void MainWindow::writeSettings(){

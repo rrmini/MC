@@ -197,7 +197,8 @@ void DatabaseConnectionDialog::doDatabaseConnection()
 
     QStringList names = QSqlDatabase::connectionNames();
     for (int i=0; i<names.size(); i++){
-        if(names[i] == editDatabaseHostName->text() + " " + editDatabaseName->text()){
+        if(names[i] == editDatabaseHostName->text() + " " + editDatabaseName->text() &&
+                QSqlDatabase::database(names[i]).isOpen()){
             QMessageBox::warning(this,tr(""),tr("такое соединение уже есть!"));
             return;
         }
