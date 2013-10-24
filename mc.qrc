@@ -8,5 +8,6 @@
         <file>images/disconnect16.png</file>
         <file>images/connect32.png</file>
         <file>images/exit32.png</file>
+        <file>images/connect24.png</file>
     </qresource>
 </RCC>

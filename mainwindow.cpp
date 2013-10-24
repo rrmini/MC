@@ -39,7 +39,7 @@ void MainWindow::dbConnection(){
     dialog->setDatabaseUsername(user);
     dialog->exec();
     if(dialog->isOpen) {
-        dbConnectionAct->setIcon(QIcon(":/images/connect32.png"));
+        dbConnectionAct->setIcon(QIcon(":/images/connect24.png"));
         updateDatabaseMenu();
     }
     bdName = dialog->dbName();
@@ -139,8 +139,15 @@ void MainWindow::createLanguageMenu(){
         languageMenu->addAction(action);
         languageActionGroup->addAction(action);
 
-        if (language == "English") action->setChecked(true);
+        if (locale == MainWindow::locale) {
+            QString qmPath = directoryOf("translations").absolutePath();
+            appTranslator.load("mainwindow_"+ locale, qmPath);
+            qtTranslator.load("qt_" + locale, qmPath);
+            action->setChecked(true);
+        }
+        else if (language =="English") action->setChecked(true);
     }
+
 }
 
 void MainWindow::createMenus(){
@@ -162,7 +169,6 @@ void MainWindow::createStatusBar()
 {
     statusLabel = new QLabel(tr("no connect"), this);
     statBar = statusBar();
-//    statBar->clearMessage();
     statBar->addWidget(statusLabel);
 }
 
@@ -171,6 +177,16 @@ void MainWindow::createToolBars()
     mineToolBar = addToolBar(tr("Mine"));
     mineToolBar->addAction(dbConnectionAct);
     mineToolBar->addAction(exitAct);
+
+    rightToolBar = addToolBar(tr("rightToolBar"));
+    addToolBar(Qt::RightToolBarArea, rightToolBar);
+
+    editLine = new QLineEdit;
+    rightToolBar->setMovable(false);
+    rightToolBar->setMinimumWidth(250);
+    /*QAction *actEditLine = */ rightToolBar->addWidget(editLine);
+
+    rightToolBar->addAction(exitAct);
 }
 
 QDir MainWindow::directoryOf(const QString &subdir){
@@ -200,6 +216,7 @@ void MainWindow::readSettings(){
     portNumber = settings.value("/Settings/portNumber",3306).toInt();
     user = settings.value("/Settings/name","").toString();
     if (user == tr("")) user = tr("*****") ;
+    locale = settings.value("/Settings/locale","").toString();
 }
 
 void MainWindow::retranslate(){
@@ -209,7 +226,7 @@ void MainWindow::retranslate(){
 
     fileMenu        ->setTitle(tr("Main"));
     fileMenu        ->setStatusTip(tr("Main"));
-//    languageMenu    ->setTitle(tr("&Language"));
+    languageMenu    ->setTitle(tr("&Language"));
     helpMenu        ->setTitle(tr("&Help"));
 }
 
@@ -220,7 +237,7 @@ void MainWindow::switchDataBase(QAction *action)
 }
 
 void MainWindow::switchLanguage(QAction *action){
-    QString locale = action->data().toString();
+    locale = action->data().toString();
     QString qmPath = directoryOf("translations").absolutePath();
 //    QMessageBox::warning(0,"",tr("%1").arg(qmPath));
     appTranslator.load("mainwindow_"+ locale, qmPath);
@@ -235,4 +252,6 @@ void MainWindow::writeSettings(){
     settings.setValue("/Settings/bdName",bdName);
     settings.setValue("/Settings/portNumber",portNumber);
     settings.setValue("/Settings/name",user);
+    settings.setValue("/Settings/locale",locale);
+//    QMessageBox::warning(0,"",tr("%1").arg(locale));
 }

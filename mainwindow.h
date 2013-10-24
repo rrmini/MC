@@ -55,6 +55,7 @@ private:
     QActionGroup    *databaseActionGroup;
     QActionGroup    *languageActionGroup;
     QLabel      *statusLabel;
+    QLineEdit   *editLine;
     QMenu       *helpMenu;
     QMenu       *fileMenu;
     QMenu       *languageMenu;
@@ -65,8 +66,10 @@ private:
     QString     hostName;
     QString     user;
     QString     passw;
+    QString     locale;
 
     QToolBar    *mineToolBar;
+    QToolBar    *rightToolBar;
 
     QTranslator appTranslator;
     QTranslator qtTranslator;
