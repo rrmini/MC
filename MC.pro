@@ -12,10 +12,14 @@ TEMPLATE = app
 
 SOURCES +=  main.cpp\
             mainwindow.cpp \
-            formdialogs/databaseconnectiondialog.cpp
+            formdialogs/databaseconnectiondialog.cpp \
+    connectionwidget.cpp \
+    widget.cpp
 
 HEADERS  += mainwindow.h \
-            formdialogs/databaseconnectiondialog.h
+            formdialogs/databaseconnectiondialog.h \
+    connectionwidget.h \
+    widget.h
 
 TRANSLATIONS = translations/mainwindow_ru.ts \
                 translations/mainwindow_ru.qm

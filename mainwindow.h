@@ -11,6 +11,7 @@ class QAction;
 class QActionGroup;
 class QMenu;
 class QMdiArea;
+class ConnectionWidget;
 //class QMdiSubWindow;
 //class QSignalMapper;
 QT_END_NAMESPACE
@@ -47,6 +48,7 @@ private:
     void retranslate();
     void writeSettings();
 
+    ConnectionWidget *connWidget;
     QAction     *aboutQtAct;
     QAction     *dbConnectionAct;
     QAction     *exitAct;
@@ -55,7 +57,7 @@ private:
     QActionGroup    *databaseActionGroup;
     QActionGroup    *languageActionGroup;
     QLabel      *statusLabel;
-    QLineEdit   *editLine;
+//    QLineEdit   *editLine;
     QMenu       *helpMenu;
     QMenu       *fileMenu;
     QMenu       *languageMenu;

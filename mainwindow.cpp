@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "connectionwidget.h"
 #include "formdialogs/databaseconnectiondialog.h"
 
 #include <QtWidgets>
@@ -41,6 +42,7 @@ void MainWindow::dbConnection(){
     if(dialog->isOpen) {
         dbConnectionAct->setIcon(QIcon(":/images/connect24.png"));
         updateDatabaseMenu();
+        connWidget->refresh();
     }
     bdName = dialog->dbName();
     portNumber = dialog->portNumber();
@@ -181,12 +183,15 @@ void MainWindow::createToolBars()
     rightToolBar = addToolBar(tr("rightToolBar"));
     addToolBar(Qt::RightToolBarArea, rightToolBar);
 
-    editLine = new QLineEdit;
+//    QVBoxLayout *layout = new QVBoxLayout(this);
+    /*ConnectionWidget **/connWidget = new ConnectionWidget(this);
+//    editLine = new QLineEdit;
     rightToolBar->setMovable(false);
     rightToolBar->setMinimumWidth(250);
-    /*QAction *actEditLine = */ rightToolBar->addWidget(editLine);
-
     rightToolBar->addAction(exitAct);
+//    /*QAction *actEditLine = */ rightToolBar->addWidget(editLine);
+    rightToolBar->addWidget(connWidget);
+
 }
 
 QDir MainWindow::directoryOf(const QString &subdir){
