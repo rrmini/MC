@@ -5,7 +5,8 @@
 #include <QMainWindow>
 #include <QtSql>
 
-class QMdiArea;
+//class QMdiArea;
+class MdiChild;
 QT_BEGIN_NAMESPACE
 class QAction;
 class QActionGroup;
@@ -30,16 +31,19 @@ protected:
 
 private slots:
     void dbConnection();
+    void open();
     void switchDataBase(QAction *action);
     void switchLanguage(QAction *action);
     void updateDatabaseMenu();
+    void setActiveSubWindow(QWidget *window);
+    MdiChild *createMdiChild();
 
 private:
 
     QDir directoryOf(const QString &subdir);
     void createActions();
 
-
+    void createDockWindow();
     void createLanguageMenu();
     void createMenus();
     void createStatusBar();
@@ -61,8 +65,10 @@ private:
     QMenu       *helpMenu;
     QMenu       *fileMenu;
     QMenu       *languageMenu;
+    QMenu       *viewMenu;
     QMdiArea    *mdiArea;
     int         portNumber;
+    QSignalMapper *windowMapper;
     QStatusBar  *statBar;
     QString     bdName;
     QString     hostName;
@@ -71,7 +77,6 @@ private:
     QString     locale;
 
     QToolBar    *mineToolBar;
-    QToolBar    *rightToolBar;
 
     QTranslator appTranslator;
     QTranslator qtTranslator;

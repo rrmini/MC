@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "connectionwidget.h"
 #include "formdialogs/databaseconnectiondialog.h"
-
+#include "mdichild.h"
 #include <QtWidgets>
 #include <QDir>
 
@@ -14,9 +14,14 @@ MainWindow::MainWindow()
     mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setCentralWidget(mdiArea);
 
-    setWindowTitle(hostName);
+    setWindowTitle("MC-project");
 //    connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
 //            this, SLOT(updateMenus()));
+
+    windowMapper = new QSignalMapper(this);
+    connect(windowMapper, SIGNAL(mapped(QWidget*)),
+                this, SLOT(setActiveSubWindow(QWidget*)));
+
     qApp->installTranslator(&appTranslator);
     qApp->installTranslator(&qtTranslator);
 
@@ -24,6 +29,7 @@ MainWindow::MainWindow()
     createMenus();
     createToolBars();
     createStatusBar();
+    createDockWindow();
     retranslate();
 }
 
@@ -42,6 +48,7 @@ void MainWindow::dbConnection(){
     if(dialog->isOpen) {
         dbConnectionAct->setIcon(QIcon(":/images/connect24.png"));
         updateDatabaseMenu();
+        open();
         connWidget->refresh();
     }
     bdName = dialog->dbName();
@@ -83,6 +90,31 @@ void MainWindow::createActions(){
     separatorAct = new QAction(this);
     separatorAct->setSeparator(true);
 
+}
+
+void MainWindow::createDockWindow()
+{
+    QDockWidget *dock = new QDockWidget(tr("Customers"), this);
+    dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    viewMenu->addAction(dock->toggleViewAction());
+    connWidget = new ConnectionWidget(this);
+    dock->setWidget(connWidget);
+    addDockWidget(Qt::RightDockWidgetArea, dock);
+}
+
+MdiChild *MainWindow::createMdiChild()
+{
+    MdiChild *child = new MdiChild;
+    mdiArea->addSubWindow(child);
+
+#ifndef QT_NO_CLIPBOARD
+//    connect(child, SIGNAL(copyAvailable(bool)),
+//            cutAct, SLOT(setEnabled(bool)));
+//    connect(child, SIGNAL(copyAvailable(bool)),
+//            copyAct, SLOT(setEnabled(bool)));
+#endif
+
+    return child;
 }
 
 void MainWindow::updateDatabaseMenu()
@@ -159,11 +191,14 @@ void MainWindow::createMenus(){
 
     createLanguageMenu();
 
+    viewMenu = new QMenu(this);
+
     helpMenu = new QMenu(this);
     helpMenu->addAction(aboutQtAct);
 
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(languageMenu);
+    menuBar()->addMenu(viewMenu);
     menuBar()->addMenu(helpMenu);
 }
 
@@ -180,18 +215,7 @@ void MainWindow::createToolBars()
     mineToolBar->addAction(dbConnectionAct);
     mineToolBar->addAction(exitAct);
 
-    rightToolBar = addToolBar(tr("rightToolBar"));
-    addToolBar(Qt::RightToolBarArea, rightToolBar);
-
-//    QVBoxLayout *layout = new QVBoxLayout(this);
-    /*ConnectionWidget **/connWidget = new ConnectionWidget(this);
-//    editLine = new QLineEdit;
-    rightToolBar->setMovable(false);
-    rightToolBar->setMinimumWidth(250);
-    rightToolBar->addAction(exitAct);
-//    /*QAction *actEditLine = */ rightToolBar->addWidget(editLine);
-    rightToolBar->addWidget(connWidget);
-
+    viewMenu->addAction(mineToolBar->toggleViewAction());
 }
 
 QDir MainWindow::directoryOf(const QString &subdir){
@@ -210,6 +234,29 @@ QDir MainWindow::directoryOf(const QString &subdir){
 #endif
     dir.cd(subdir);
     return dir;
+}
+
+void MainWindow::open()
+{
+  /*  QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty()) {
+        QMdiSubWindow *existing = findMdiChild(fileName);
+        if (existing) {
+            mdiArea->setActiveSubWindow(existing);
+            return;
+        }
+
+        MdiChild *child = createMdiChild();
+        if (child->loadFile(fileName)) {
+            statusBar()->showMessage(tr("File loaded"), 2000);
+            child->show();
+        } else {
+            child->close();
+        }
+    }*/
+
+    MdiChild *child = createMdiChild();
+    child->show();
 }
 
 void MainWindow::readSettings(){
@@ -232,7 +279,15 @@ void MainWindow::retranslate(){
     fileMenu        ->setTitle(tr("Main"));
     fileMenu        ->setStatusTip(tr("Main"));
     languageMenu    ->setTitle(tr("&Language"));
+    viewMenu        ->setTitle(tr("&View"));
     helpMenu        ->setTitle(tr("&Help"));
+}
+
+void MainWindow::setActiveSubWindow(QWidget *window)
+{
+    if (!window)
+        return;
+    mdiArea->setActiveSubWindow(qobject_cast<QMdiSubWindow *>(window));
 }
 
 void MainWindow::switchDataBase(QAction *action)

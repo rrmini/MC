@@ -14,12 +14,14 @@ SOURCES +=  main.cpp\
             mainwindow.cpp \
             formdialogs/databaseconnectiondialog.cpp \
     connectionwidget.cpp \
-    widget.cpp
+    widget.cpp \
+    mdichild.cpp
 
 HEADERS  += mainwindow.h \
             formdialogs/databaseconnectiondialog.h \
     connectionwidget.h \
-    widget.h
+    widget.h \
+    mdichild.h
 
 TRANSLATIONS = translations/mainwindow_ru.ts \
                 translations/mainwindow_ru.qm
