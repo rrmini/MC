@@ -12,9 +12,10 @@ class QAction;
 class QActionGroup;
 class QMenu;
 class QMdiArea;
+class QMdiSubWindow;
 class ConnectionWidget;
-//class QMdiSubWindow;
-//class QSignalMapper;
+class QMdiSubWindow;
+class QSignalMapper;
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
@@ -31,7 +32,7 @@ protected:
 
 private slots:
     void dbConnection();
-    void open();
+    void open(const QString &connectionName);
     void switchDataBase(QAction *action);
     void switchLanguage(QAction *action);
     void updateDatabaseMenu();
@@ -58,10 +59,10 @@ private:
     QAction     *exitAct;
     QAction     *separatorAct;
 
-    QActionGroup    *databaseActionGroup;
     QActionGroup    *languageActionGroup;
     QLabel      *statusLabel;
-//    QLineEdit   *editLine;
+    MdiChild    *activeMdiChild();
+    QMdiSubWindow *findMdiChild(const QString &windowObjectName);
     QMenu       *helpMenu;
     QMenu       *fileMenu;
     QMenu       *languageMenu;

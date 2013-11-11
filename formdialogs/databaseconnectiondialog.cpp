@@ -224,6 +224,9 @@ void DatabaseConnectionDialog::doDatabaseConnection()
         // on the first field
         buttons->button( QDialogButtonBox::Ok )->setEnabled( false );
         editDatabaseHostName->setFocus();
+        databaseConnection.removeDatabase(editDatabaseHostName->text() +
+                                          " " + editDatabaseName->text());
+        isOpen = false;
     }
     else{
         isOpen = true;

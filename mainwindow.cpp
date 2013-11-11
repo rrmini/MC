@@ -38,6 +38,13 @@ MainWindow::~MainWindow()
     writeSettings();
 }
 
+MdiChild *MainWindow::activeMdiChild()
+{
+    if (QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow())
+        return qobject_cast<MdiChild *>(activeSubWindow->widget());
+    return 0;
+}
+
 void MainWindow::dbConnection(){
     DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(this);
     dialog->setDatabaseHostName(hostName);
@@ -45,10 +52,12 @@ void MainWindow::dbConnection(){
     dialog->setDatabasePortNumber(portNumber);
     dialog->setDatabaseUsername(user);
     dialog->exec();
+//    QMessageBox::warning(this, "", tr("%1").arg(dialog->isOpen));
     if(dialog->isOpen) {
         dbConnectionAct->setIcon(QIcon(":/images/connect24.png"));
+
+        open(dialog->hostName()+" "+dialog->dbName());
         updateDatabaseMenu();
-        open();
         connWidget->refresh();
     }
     bdName = dialog->dbName();
@@ -68,10 +77,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-void MainWindow::createActions(){
-    databaseActionGroup = new QActionGroup(this);
-    connect(databaseActionGroup, SIGNAL(triggered(QAction*)), this, SLOT(switchDataBase(QAction*)));
-
+void MainWindow::createActions()
+{
     dbConnectionAct = new QAction(this);
     dbConnectionAct->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
     dbConnectionAct->setIcon(QIcon(":/images/disconnect32.png"));
@@ -105,6 +112,7 @@ void MainWindow::createDockWindow()
 MdiChild *MainWindow::createMdiChild()
 {
     MdiChild *child = new MdiChild;
+//    child->setModel();
     mdiArea->addSubWindow(child);
 
 #ifndef QT_NO_CLIPBOARD
@@ -115,32 +123,6 @@ MdiChild *MainWindow::createMdiChild()
 #endif
 
     return child;
-}
-
-void MainWindow::updateDatabaseMenu()
-{
-    fileMenu->clear();
-    fileMenu->addAction(dbConnectionAct);
-    fileMenu->addAction(exitAct);
-    fileMenu->addAction(separatorAct);
-
-    QStringList connections = QSqlDatabase::connectionNames();
-    separatorAct->setVisible(!connections.isEmpty());
-
-    for(int i=0; i<connections.size(); i++) {
-        QString names = connections[i];
-        QAction *act =new QAction(names, this);
-        act->setCheckable(true);
-        act->setData(names);
-        fileMenu-> addAction(act);
-        databaseActionGroup->addAction(act);
-        if(!i) {
-            act->setChecked(true);
-            switchDataBase(act);//не корректно работет т.к. не понятно на данном этапе какое соединение в данный момент
-            // используется. Скорее всего эта проблема решится, когда будут построены окна соответствующие открытм соединениям
-            // пока оставляем без изменения
-        }
-    }
 }
 
 void MainWindow::createLanguageMenu(){
@@ -188,6 +170,7 @@ void MainWindow::createMenus(){
     fileMenu = new QMenu(this);
     fileMenu->addAction(dbConnectionAct);
     fileMenu->addAction(exitAct);
+    connect(fileMenu, SIGNAL(aboutToShow()), this, SLOT(updateDatabaseMenu()));
 
     createLanguageMenu();
 
@@ -236,27 +219,28 @@ QDir MainWindow::directoryOf(const QString &subdir){
     return dir;
 }
 
-void MainWindow::open()
+void MainWindow::open(const QString &connectionName)
 {
-  /*  QString fileName = QFileDialog::getOpenFileName(this);
-    if (!fileName.isEmpty()) {
-        QMdiSubWindow *existing = findMdiChild(fileName);
-        if (existing) {
-            mdiArea->setActiveSubWindow(existing);
-            return;
-        }
-
-        MdiChild *child = createMdiChild();
-        if (child->loadFile(fileName)) {
-            statusBar()->showMessage(tr("File loaded"), 2000);
-            child->show();
-        } else {
-            child->close();
-        }
-    }*/
+    QMdiSubWindow *existing = findMdiChild(connectionName);
+    if (existing) {
+        mdiArea->setActiveSubWindow(existing);
+        return;
+    }
 
     MdiChild *child = createMdiChild();
+    child->setObjectName(connectionName);
+    child->setWindowTitle(connectionName);
     child->show();
+}
+
+QMdiSubWindow *MainWindow::findMdiChild(const QString &windowObjectName)
+{
+    foreach (QMdiSubWindow *window, mdiArea->subWindowList()) {
+        MdiChild *mdiChild = qobject_cast<MdiChild *>(window->widget());
+        if (mdiChild->objectName() == windowObjectName)
+            return window;
+    }
+    return 0;
 }
 
 void MainWindow::readSettings(){
@@ -293,6 +277,7 @@ void MainWindow::setActiveSubWindow(QWidget *window)
 void MainWindow::switchDataBase(QAction *action)
 {
     QString name = action->data().toString();
+    open(name);
     statusLabel->setText(tr("current database: ") + name);
 }
 
@@ -303,6 +288,36 @@ void MainWindow::switchLanguage(QAction *action){
     appTranslator.load("mainwindow_"+ locale, qmPath);
     qtTranslator.load("qt_" + locale, qmPath);
     retranslate();
+}
+
+void MainWindow::updateDatabaseMenu()
+{
+    fileMenu->clear();
+    fileMenu->addAction(dbConnectionAct);
+    fileMenu->addAction(exitAct);
+    fileMenu->addAction(separatorAct);
+
+    QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
+    separatorAct->setVisible(!windows.isEmpty());
+
+    for (int i = 0; i < windows.size(); ++i) {
+        MdiChild *child = qobject_cast<MdiChild *>(windows.at(i)->widget());
+
+        QString text;
+//        if (i < 9) {
+//            text = tr("&%1 %2").arg(i + 1)
+//                               .arg(child->objectName());
+//        } else {
+//            text = tr("%1 %2").arg(i + 1)
+//                              .arg(child->objectName());
+//        }
+        text = child->objectName();
+        QAction *action  = fileMenu->addAction(text);
+        action->setCheckable(true);
+        action ->setChecked(child == activeMdiChild());
+        connect(action, SIGNAL(triggered()), windowMapper, SLOT(map()));
+        windowMapper->setMapping(action, windows.at(i));
+    }
 }
 
 void MainWindow::writeSettings(){
