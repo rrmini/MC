@@ -35,9 +35,13 @@ private slots:
     void open(const QString &connectionName);
     void switchDataBase(QAction *action);
     void switchLanguage(QAction *action);
+    void showTable(const QString &table);
     void updateDatabaseMenu();
     void setActiveSubWindow(QWidget *window);
     MdiChild *createMdiChild();
+    void on_connectionWidget_tableActivated(const QString &table)
+    { showTable(table); }
+//    void switchTable();
 
 private:
 
@@ -81,6 +85,21 @@ private:
 
     QTranslator appTranslator;
     QTranslator qtTranslator;
+
+signals:
+    void statusMessage(const QString &message);
 };
 
+class CustomModel: public QSqlTableModel
+{
+    Q_OBJECT
+public:
+    explicit CustomModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase()):QSqlTableModel(parent, db) {}
+    QVariant data(const QModelIndex &idx, int role) const
+    {
+        if (role == Qt::BackgroundRole && isDirty(idx))
+            return QBrush(QColor(Qt::yellow));
+        return QSqlTableModel::data(idx, role);
+    }
+};
 #endif // MAINWINDOW_H

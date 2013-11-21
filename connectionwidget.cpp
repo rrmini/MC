@@ -17,11 +17,40 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) :
     tree->addAction(refreshAction);
     tree->addAction(metaDataAction);
     tree->setContextMenuPolicy(Qt::ActionsContextMenu);
+    connect(tree, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
+            this, SLOT(on_tree_itemActivated(QTreeWidgetItem*,int)));
+    connect(tree, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+            this, SLOT(on_tree_currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)));
 
     layout->addWidget(tree);
     QLineEdit *lineEdit = new QLineEdit(this);
     layout->addWidget(lineEdit);
 
+}
+
+QSqlDatabase ConnectionWidget::currentDatabase() const
+{
+    return QSqlDatabase::database(activeDb);
+}
+
+void ConnectionWidget::on_tree_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
+{
+    metaDataAction->setEnabled(current && current->parent());
+}
+
+void ConnectionWidget::on_tree_itemActivated(QTreeWidgetItem *item, int /* column */)
+{
+
+    if (!item)
+        return;
+
+    if (!item->parent()) {
+        setActive(item);
+    } else {
+        setActive(item->parent());
+        emit tableActivated(item->text(0));
+//        QMessageBox::warning(this,tr(""),item->text(0));
+    }
 }
 
 static QString qDBCaption(const QSqlDatabase &db)
@@ -83,6 +112,7 @@ void ConnectionWidget::setActive(QTreeWidgetItem *item)
 
     qSetBold(item, true);
     activeDb = QSqlDatabase::connectionNames().value(tree->indexOfTopLevelItem(item));
+//    QMessageBox::warning(this,tr(""),activeDb);
 }
 
 void ConnectionWidget::showMetaData()
@@ -93,3 +123,11 @@ void ConnectionWidget::showMetaData()
     setActive(cItem->parent());
     emit metaDataRequested(cItem->text(0));
 }
+
+//void ConnectionWidget::tabActiv(const QString &table)
+//{
+//    QTreeWidgetItem *cItem = tree->currentItem();
+//    if (!cItem || !cItem->parent())
+//        return;
+//    emit tabActiv(cItem->text(0));
+//}

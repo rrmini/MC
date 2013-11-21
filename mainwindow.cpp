@@ -52,13 +52,13 @@ void MainWindow::dbConnection(){
     dialog->setDatabasePortNumber(portNumber);
     dialog->setDatabaseUsername(user);
     dialog->exec();
-//    QMessageBox::warning(this, "", tr("%1").arg(dialog->isOpen));
     if(dialog->isOpen) {
         dbConnectionAct->setIcon(QIcon(":/images/connect24.png"));
 
         open(dialog->hostName()+" "+dialog->dbName());
         updateDatabaseMenu();
         connWidget->refresh();
+        connect(connWidget, SIGNAL(tableActivated(QString)), this, SLOT(showTable(QString)));
     }
     bdName = dialog->dbName();
     portNumber = dialog->portNumber();
@@ -107,6 +107,7 @@ void MainWindow::createDockWindow()
     connWidget = new ConnectionWidget(this);
     dock->setWidget(connWidget);
     addDockWidget(Qt::RightDockWidgetArea, dock);
+//    connect(connWidget->tree, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(switchTable()));
 }
 
 MdiChild *MainWindow::createMdiChild()
@@ -288,6 +289,50 @@ void MainWindow::switchLanguage(QAction *action){
     appTranslator.load("mainwindow_"+ locale, qmPath);
     qtTranslator.load("qt_" + locale, qmPath);
     retranslate();
+}
+
+//void MainWindow::switchTable()
+//{
+////    QTreeWidgetItem *item = connWidget->tree->currentItem();
+////    connWidget->on_tree_itemActivated(item,0);
+//    QString str =  connWidget->currentDatabase().hostName();
+//    str += " ";
+//    str += connWidget->currentDatabase().databaseName();
+////    str += " ";
+////    str += connWidget->currentDatabase().hostName();
+////    str += " ";
+////    str += connWidget->currentDatabase().databaseName();
+////    QString wName = connWidget->currentDatabase().hostName();
+////    wName += " ";
+////    wName += connWidget->currentDatabase().databaseName();
+////    QMessageBox::warning(this, tr(""),wName);
+////    open(wName);
+
+////    QMessageBox::warning(this, tr(""),str);
+//}
+
+void MainWindow::showTable(const QString &t)
+{
+    QString name = connWidget->currentDatabase().hostName();
+    name += " ";
+    name += connWidget->currentDatabase().databaseName();
+//    QMessageBox::warning(this,tr(""),name);
+    open(name);
+
+    QSqlTableModel *model = new CustomModel(activeMdiChild(), connWidget->currentDatabase());
+    model->setEditStrategy(QSqlTableModel::OnRowChange);
+    model->setTable(connWidget->currentDatabase().driver()->escapeIdentifier(t, QSqlDriver::TableName));
+    model->select();
+    if (model->lastError().type() != QSqlError::NoError)
+        emit statusMessage(model->lastError().text());
+//    table->setModel(model);
+    activeMdiChild()->setModel(model);
+//    table->setEditTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed);
+    activeMdiChild()->setEditTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed);
+
+//    connect(activeMdiChild()->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
+//            this, SLOT(currentChanged()));
+//    updateActions();
 }
 
 void MainWindow::updateDatabaseMenu()
